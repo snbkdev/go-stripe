@@ -1,0 +1,49 @@
+# Скомпилированные бинарники и объектные файлы
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+
+# Собранные приложения (go build без -o кладёт бинарник с именем пакета)
+/go-stripe
+/dist/
+/bin/
+/tmp/
+
+# Тесты и покрытие
+*.test
+*.out
+coverage.*
+
+# Go workspace / vendor
+go.work
+go.work.sum
+/vendor/
+
+# Секреты и локальная конфигурация (STRIPE_KEY, STRIPE_SECRET, DSN БД)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Логи и базы данных
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Зависимости фронтенда
+node_modules/
+
+# IDE и редакторы
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
