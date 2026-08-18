@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go-stripe/internal/driver"
 	"html/template"
 	"log"
 	"net/http"
@@ -65,6 +66,7 @@ func main() {
 		log.Println("No .env file found, using system environment variables")
 	}
 
+	cfg.db.dsn = os.Getenv("DB_DSN")
 	cfg.stripe.key = os.Getenv("STRIPE_KEY")
 	cfg.stripe.secret = os.Getenv("STRIPE_SECRET")
 
@@ -74,6 +76,12 @@ func main() {
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	conn, err := driver.OpenDB(cfg.db.dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer conn.Close()
 
 	tc := make(map[string]*template.Template)
 
