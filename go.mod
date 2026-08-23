@@ -14,3 +14,5 @@ require (
 )
 
 require github.com/alexedwards/scs/v2 v2.9.0
+
+require golang.org/x/crypto v0.55.0 // indirect
