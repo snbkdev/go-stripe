@@ -157,7 +157,8 @@ CREATE TABLE public.tokens (
     email character varying(255) NOT NULL,
     token_hash bytea NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    expiry timestamp without time zone DEFAULT '2026-08-23 16:56:53.768962'::timestamp without time zone NOT NULL
 );
 
 
