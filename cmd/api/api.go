@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -25,6 +26,14 @@ type config struct {
 		secret string
 		key    string
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+	}
+	secretkey string
+	frontend  string
 }
 
 type application struct {
@@ -55,6 +64,8 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
+	flag.StringVar(&cfg.secretkey, "secret", "adsadaswqeqf", "secret key")
+	flag.StringVar(&cfg.frontend, "frontend", "http:localhost:4000", "url to front end")
 
 	flag.Parse()
 
@@ -66,6 +77,16 @@ func main() {
 	cfg.db.dsn = os.Getenv("DB_DSN")
 	cfg.stripe.key = os.Getenv("STRIPE_KEY")
 	cfg.stripe.secret = os.Getenv("STRIPE_SECRET")
+	cfg.smtp.username = os.Getenv("MAIL_USERNAME")
+	cfg.smtp.password = os.Getenv("MAIL_PASSWORD")
+	cfg.smtp.host = os.Getenv("MAIL_SERVER")
+
+	port, err := strconv.ParseInt(os.Getenv("MAIL_PORT"), 10, 64)
+	if err != nil {
+		cfg.smtp.port = 587
+	} else {
+		cfg.smtp.port = int(port)
+	}
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
