@@ -64,8 +64,8 @@ func main() {
 
 	flag.IntVar(&cfg.port, "port", 4001, "Server port to listen on")
 	flag.StringVar(&cfg.env, "env", "development", "Application environment {development|production|maintenance}")
-	flag.StringVar(&cfg.secretkey, "secret", "adsadaswqeqf", "secret key")
-	flag.StringVar(&cfg.frontend, "frontend", "http:localhost:4000", "url to front end")
+	flag.StringVar(&cfg.secretkey, "secret", "MXHxpmZDYSziWfyGzNT6SdsbjWpy2Lk5", "secret key")
+	flag.StringVar(&cfg.frontend, "frontend", "http://localhost:4000", "url to front end")
 
 	flag.Parse()
 
