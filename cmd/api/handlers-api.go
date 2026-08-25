@@ -426,3 +426,23 @@ func (app *application) VirtualTermiinalPaymentSucceeded(w http.ResponseWriter, 
 
 	app.writeJSON(w, http.StatusOK, txn)
 }
+
+func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email string `json:"email"`
+	}
+
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	var data struct {
+		Link string
+	}
+
+	data.Link = "http://tekken.asia"
+
+	// send mail
+}

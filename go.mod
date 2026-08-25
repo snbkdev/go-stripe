@@ -17,5 +17,7 @@ require github.com/alexedwards/scs/v2 v2.9.0
 
 require (
 	github.com/alexedwards/scs/postgresstore v0.0.0-20251002162104-209de6e426de // indirect
+	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect
+	github.com/xhit/go-simple-mail/v2 v2.16.0 // indirect
 	golang.org/x/crypto v0.55.0 // indirect
 )
