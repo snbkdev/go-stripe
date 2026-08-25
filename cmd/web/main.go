@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/joho/godotenv"
 )
@@ -94,6 +95,7 @@ func main() {
 	// set up session
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
+	session.Store = postgresstore.New(conn)
 
 	tc := make(map[string]*template.Template)
 
