@@ -171,7 +171,7 @@ CREATE TABLE public.tokens (
     token_hash bytea NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    expiry timestamp without time zone DEFAULT '2026-08-23 16:56:53.768962'::timestamp without time zone NOT NULL
+    expiry timestamp without time zone DEFAULT '2026-08-26 16:12:07.187995'::timestamp without time zone NOT NULL
 );
 
 
