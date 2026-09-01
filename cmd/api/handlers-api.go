@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -114,6 +115,18 @@ func (app *application) GetWidgetByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(out)
 }
 
+type Invoice struct {
+	ID        int       `json:"id"`
+	WidgetID  int       `json:"widget_id"`
+	Amount    int       `json:"amount"`
+	Product   string    `json:"product"`
+	Quantity  int       `json:"quantity"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, r *http.Request) {
 	var data stripePayload
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -121,8 +134,6 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		app.errorLog.Println(err)
 		return
 	}
-
-	app.infoLog.Println(data.Email, data.LastFour, data.PaymentMethod, data.Plan)
 
 	card := cards.Card{
 		Secret:   app.config.stripe.secret,
@@ -148,32 +159,22 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			okay = false
 			txnMsg = "Error subscribing customer"
 		}
-		app.infoLog.Println("subscription id is", subscription.ID)
 	}
-	// msg := ""
-	if okay {
-		productID, err := strconv.Atoi(data.ProductID)
-		if err != nil {
-			app.errorLog.Println(err)
-			return
-		}
 
+	if okay {
+		productID, _ := strconv.Atoi(data.ProductID)
 		customerID, err := app.SaveCustomer(data.FirstName, data.LastName, data.Email)
 		if err != nil {
 			app.errorLog.Println(err)
 			return
 		}
 
-		// create a new transaction
-		amount, err := strconv.Atoi(data.Amount)
-		if err != nil {
-			app.errorLog.Println(err)
-			return
-		}
+		// create a new txn
+		amount, _ := strconv.Atoi(data.Amount)
 
 		txn := models.Transaction{
 			Amount:              amount,
-			Currency:            "usd",
+			Currency:            "cad",
 			LastFour:            data.LastFour,
 			ExpiryMonth:         data.ExpiryMonth,
 			ExpiryYear:          data.ExpiryYear,
@@ -188,7 +189,7 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			return
 		}
 
-		// create a order
+		// create order
 		order := models.Order{
 			WidgetID:      productID,
 			TransactionID: txnID,
@@ -200,10 +201,26 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 			UpdatedAt:     time.Now(),
 		}
 
-		_, err = app.SaveOrder(order)
+		orderID, err := app.SaveOrder(order)
 		if err != nil {
 			app.errorLog.Println(err)
 			return
+		}
+
+		inv := Invoice{
+			ID:        orderID,
+			Amount:    2000,
+			Product:   "Bronze Plan monthly subscription",
+			Quantity:  order.Quantity,
+			FirstName: data.FirstName,
+			LastName:  data.LastName,
+			Email:     data.Email,
+			CreatedAt: time.Now(),
+		}
+
+		err = app.callInvoiceMicro(inv)
+		if err != nil {
+			app.errorLog.Println(err)
 		}
 	}
 
@@ -212,7 +229,7 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		Message: txnMsg,
 	}
 
-	out, err := json.MarshalIndent(resp, "", "    ")
+	out, err := json.MarshalIndent(resp, "", "  ")
 	if err != nil {
 		app.errorLog.Println(err)
 		return
@@ -220,6 +237,30 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
+}
+
+// callInvoiceMicro calls the invoicing microservice
+func (app *application) callInvoiceMicro(inv Invoice) error {
+	url := "http://localhost:5000/invoice/create-and-send"
+	out, err := json.MarshalIndent(inv, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(out))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	return nil
 }
 
 // SaveCustomer saves a customer and returns id
