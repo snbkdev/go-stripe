@@ -43,7 +43,7 @@ func (app *application) CreateAndSendInvoice(w http.ResponseWriter, r *http.Requ
 	}
 
 	// send mail with attachment
-	err = app.SendMail("asanbek.best@mail.ru", order.Email, "Your invoice", "invoice", attachments, nil)
+	err = app.SendMail("#", order.Email, "Your invoice", "invoice", attachments, nil)
 	if err != nil {
 		app.badRequest(w, r, err)
 		return
