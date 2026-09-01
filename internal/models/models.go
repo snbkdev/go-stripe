@@ -615,7 +615,7 @@ func (m *DBModel) EditUser(u User) error {
 	defer cancel()
 
 	stmt := `update users set 
-		first_name = $1, last_name = $2, email = $3 updated_at = $4
+		first_name = $1, last_name = $2, email = $3, updated_at = $4
 		where id = $5`
 
 	_, err := m.DB.ExecContext(ctx, stmt, u.FirstName, u.LastName, u.Email, u.UpdatedAt, u.ID)
